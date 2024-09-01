@@ -25,29 +25,54 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.gluonhq.richtextarea;
+package com.gluonhq.richtextarea.controls;
 
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import javafx.scene.shape.Shape;
 
 import java.util.Objects;
 
-class BackgroundColorPath extends Path {
+public class BackgroundSolidPath extends Path implements BackgroundPath {
 
-    public BackgroundColorPath(PathElement[] elements) {
+    private final Paint color;
+
+    public BackgroundSolidPath(PathElement[] elements, Paint color) {
         super(elements);
+        this.color = color;
+        setFill(color);
+        setStrokeWidth(0);
+        setStroke(null);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BackgroundColorPath that = (BackgroundColorPath) o;
+        BackgroundSolidPath that = (BackgroundSolidPath) o;
         return Objects.equals(getLayoutBounds(), that.getLayoutBounds()) && Objects.equals(getFill(), that.getFill());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getLayoutBounds(), getFill());
+    }
+
+    @Override
+    public BackgroundPath mergeWith(Path other) {
+        if (other instanceof BackgroundSolidPath) {
+            Path union = (Path) Shape.union(this, other);
+            union.setFill(this.getFill());
+            union.setStrokeWidth(0);
+            union.setStroke(null);
+            return new BackgroundSolidPath(union.getElements().toArray(new PathElement[0]), color);
+        }
+        return this;
+    }
+
+    @Override
+    public Paint getKey() {
+        return getFill();
     }
 }

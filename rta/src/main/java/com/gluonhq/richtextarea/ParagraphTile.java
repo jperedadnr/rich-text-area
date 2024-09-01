@@ -27,6 +27,10 @@
  */
 package com.gluonhq.richtextarea;
 
+import com.gluonhq.richtextarea.controls.BackgroundPath;
+import com.gluonhq.richtextarea.controls.BackgroundSolidPath;
+import com.gluonhq.richtextarea.controls.BackgroundStrokePath;
+import com.gluonhq.richtextarea.controls.UnderlineColorPath;
 import com.gluonhq.richtextarea.model.Paragraph;
 import com.gluonhq.richtextarea.model.ParagraphDecoration;
 import com.gluonhq.richtextarea.model.TextDecoration;
@@ -59,7 +63,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
@@ -422,22 +425,36 @@ class ParagraphTile extends HBox {
         }
 
         private void addBackgroundPathsToLayers(List<IndexRangeColor> backgroundIndexRanges) {
-            Map<Paint, Path> fillPathMap = backgroundIndexRanges.stream()
-                    .map(indexRangeBackground -> {
-                        final Path path = new BackgroundColorPath(textFlow.rangeShape(indexRangeBackground.getStart(), indexRangeBackground.getEnd()));
-                        path.setStrokeWidth(0);
-                        path.setFill(indexRangeBackground.getColor());
-                        path.setLayoutX(textFlowLayoutX);
-                        path.setLayoutY(textFlowLayoutY);
-                        return path;
-                    })
-                    .collect(Collectors.toMap(Path::getFill, Function.identity(), (p1, p2) -> {
-                        Path union = (Path) Shape.union(p1, p2);
-                        union.setFill(p1.getFill());
-                        return union;
-                    }));
-            textBackgroundColorPaths.removeIf(path -> !fillPathMap.containsValue(path));
-            textBackgroundColorPaths.addAll(fillPathMap.values());
+            List<Path> paths = new ArrayList<>();
+            for (TextDecoration.BackgroundType type : TextDecoration.BackgroundType.values()) {
+                Map<Paint, BackgroundPath> backgroundPathMap = backgroundIndexRanges.stream()
+                        .filter(i -> i.getBackgroundType() == type)
+                        .map(this::getBackgroundPath)
+                        .collect(Collectors.toMap(BackgroundPath::getKey, Function.identity(),
+                                (bp1, bp2) -> bp1.mergeWith((Path) bp2)));
+                backgroundPathMap.values().stream()
+                        .map(bp -> ((Path) bp))
+                        .forEach(p -> {
+                            p.setLayoutX(textFlowLayoutX);
+                            p.setLayoutY(textFlowLayoutY);
+                            paths.add(p);
+                        });
+            }
+            textBackgroundColorPaths.removeIf(path -> !paths.contains(path));
+            textBackgroundColorPaths.addAll(paths);
+        }
+
+        private BackgroundPath getBackgroundPath(IndexRangeColor indexRangeBackground) {
+            final BackgroundPath path;
+            PathElement[] elements = textFlow.rangeShape(indexRangeBackground.getStart(), indexRangeBackground.getEnd());
+            if (indexRangeBackground.getBackgroundType() == TextDecoration.BackgroundType.SOLID) {
+                path = new BackgroundSolidPath(elements, indexRangeBackground.getColor());
+            } else if (indexRangeBackground.getBackgroundType() == TextDecoration.BackgroundType.STROKE) {
+                path = new BackgroundStrokePath(elements, indexRangeBackground.getColor());
+            } else {
+                path = new UnderlineColorPath(elements, textFlow.getBaselineOffset() - textFlow.getPadding().getTop(), indexRangeBackground.getColor(), indexRangeBackground.getBackgroundType());
+            }
+            return path;
         }
 
         void mousePressedListener(MouseEvent e) {

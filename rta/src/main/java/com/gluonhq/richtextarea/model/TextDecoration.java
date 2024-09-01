@@ -41,6 +41,13 @@ import static com.gluonhq.richtextarea.Tools.getFirstLetter;
  */
 public class TextDecoration implements Decoration {
 
+    public enum BackgroundType {
+        SOLID,
+        STROKE,
+        UNDERLINE,
+        WAVY
+    }
+
     private String foreground;
     private String background;
     private String fontFamily;
@@ -50,6 +57,7 @@ public class TextDecoration implements Decoration {
     private Boolean strikethrough;
     private Boolean underline;
     private String url;
+    private BackgroundType backgroundType;
 
     private TextDecoration() {}
 
@@ -154,6 +162,10 @@ public class TextDecoration implements Decoration {
         return url;
     }
 
+    public BackgroundType getBackgroundType() {
+        return backgroundType;
+    }
+
     /**
      * Returns a Builder that can be used to generate text decorations with several
      * attributes
@@ -186,6 +198,7 @@ public class TextDecoration implements Decoration {
         td.strikethrough = Objects.requireNonNullElse(strikethrough, decoration.strikethrough);
         td.underline = Objects.requireNonNullElse(underline, decoration.underline);
         td.url = url == null ? decoration.url : url;
+        td.backgroundType = Objects.requireNonNullElse(backgroundType, decoration.backgroundType);
         return td;
     }
 
@@ -202,12 +215,13 @@ public class TextDecoration implements Decoration {
                 fontWeight == that.fontWeight &&
                 Objects.equals(strikethrough, that.strikethrough) &&
                 Objects.equals(underline, that.underline) &&
-                Objects.equals(url, that.url);
+                Objects.equals(url, that.url) &&
+                backgroundType == that.backgroundType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(foreground, background, fontFamily, fontSize, fontPosture, fontWeight, strikethrough, underline, url);
+        return Objects.hash(foreground, background, fontFamily, fontSize, fontPosture, fontWeight, strikethrough, underline, url, backgroundType);
     }
 
     public static class Builder {
@@ -221,6 +235,7 @@ public class TextDecoration implements Decoration {
         private Boolean strikethrough;
         private Boolean underline;
         private String url;
+        private BackgroundType backgroundType;
 
         private Builder() {}
 
@@ -235,6 +250,7 @@ public class TextDecoration implements Decoration {
             decoration.strikethrough = this.strikethrough;
             decoration.underline = this.underline;
             decoration.url = this.url;
+            decoration.backgroundType = this.backgroundType;
             return decoration;
         }
 
@@ -248,6 +264,7 @@ public class TextDecoration implements Decoration {
             strikethrough = false;
             underline = false;
             url = null;
+            backgroundType = BackgroundType.SOLID;
             return this;
         }
 
@@ -261,6 +278,7 @@ public class TextDecoration implements Decoration {
             strikethrough = decoration.strikethrough;
             underline = decoration.underline;
             url = decoration.url;
+            backgroundType = decoration.backgroundType;
             return this;
         }
 
@@ -308,13 +326,18 @@ public class TextDecoration implements Decoration {
             this.url = url;
             return this;
         }
+
+        public Builder backgroundType(BackgroundType backgroundType) {
+            this.backgroundType = backgroundType;
+            return this;
+        }
     }
 
     @Override
     public String toString() {
         return "TDec{" +
                 "fcolor=" + foreground +
-                ", bcolor=" + background +
+                ", bcolor=" + background + " (" + backgroundType + ")" +
                 ", font['" + fontFamily + '\'' +
                 ", " + fontSize +
                 ", " + (fontPosture != null ? getFirstLetter(fontPosture.name()) : "-") +

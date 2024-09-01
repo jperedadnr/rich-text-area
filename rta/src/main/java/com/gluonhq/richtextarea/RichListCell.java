@@ -162,6 +162,7 @@ class RichListCell extends ListCell<Paragraph> {
             AtomicInteger tp = new AtomicInteger(item.getStart());
             richTextAreaSkin.getViewModel().walkFragments((unit, decoration) -> {
                 if (decoration instanceof TextDecoration && !unit.isEmpty()) {
+                    TextDecoration textDecoration = (TextDecoration) decoration;
                     if (item.getDecoration().hasTableDecoration()) {
                         if (unit instanceof TextUnit) {
                             String text = unit.getText();
@@ -172,14 +173,14 @@ class RichListCell extends ListCell<Paragraph> {
                                     .boxed()
                                     .forEach(i -> {
                                         String tableText = text.substring(s.getAndSet(i + 1), i + 1);
-                                        final Text textNode = buildText(tableText, (TextDecoration) decoration);
+                                        final Text textNode = buildText(tableText, textDecoration);
                                         textNode.getProperties().put(TABLE_SEPARATOR, tp.get());
                                         fragments.add(textNode);
                                         positions.add(tp.addAndGet(tableText.length()));
                                     });
                             if (s.get() < text.length()) {
                                 String tableText = text.substring(s.get()).replace("\n", TextBuffer.ZERO_WIDTH_TEXT);
-                                final Text textNode = buildText(tableText, (TextDecoration) decoration);
+                                final Text textNode = buildText(tableText, textDecoration);
                                 textNode.getProperties().put(TABLE_SEPARATOR, tp.getAndAdd(tableText.length()));
                                 fragments.add(textNode);
                                 if (text.substring(s.get()).contains("\n")) {
@@ -187,7 +188,7 @@ class RichListCell extends ListCell<Paragraph> {
                                 }
                             }
                         } else {
-                            final Node node = buildNode(unit, (TextDecoration) decoration);
+                            final Node node = buildNode(unit, textDecoration);
                             node.getProperties().put(TABLE_SEPARATOR, tp.getAndIncrement());
                             fragments.add(node);
                             length.addAndGet(unit.length());
@@ -196,13 +197,13 @@ class RichListCell extends ListCell<Paragraph> {
                             }
                         }
                     } else {
-                        final Node node = buildNode(unit, (TextDecoration) decoration);
+                        final Node node = buildNode(unit, textDecoration);
                         fragments.add(node);
-                        String background = ((TextDecoration) decoration).getBackground();
+                        String background = textDecoration.getBackground();
                         Color backgroundColor = COLOR_MAP.computeIfAbsent(background, s -> parseColorOrDefault(background, Color.TRANSPARENT));
                         if (!Color.TRANSPARENT.equals(backgroundColor)) {
                             backgroundIndexRanges.add(new IndexRangeColor(
-                                    length.get(), length.get() + unit.length(), backgroundColor));
+                                    length.get(), length.get() + unit.length(), backgroundColor, textDecoration.getBackgroundType()));
                         }
                     }
                     length.addAndGet(unit.length());

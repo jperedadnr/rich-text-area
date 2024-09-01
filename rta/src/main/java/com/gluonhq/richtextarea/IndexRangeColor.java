@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Gluon
+ * Copyright (c) 2022, 2024, Gluon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
  */
 package com.gluonhq.richtextarea;
 
+import com.gluonhq.richtextarea.model.TextDecoration;
 import javafx.scene.paint.Color;
 
 class IndexRangeColor {
@@ -34,11 +35,13 @@ class IndexRangeColor {
     private final int start;
     private final int end;
     private final Color color;
+    private final TextDecoration.BackgroundType backgroundType;
 
-    public IndexRangeColor(int start, int end, Color color) {
+    public IndexRangeColor(int start, int end, Color color, TextDecoration.BackgroundType backgroundType) {
         this.start = start;
         this.end = end;
         this.color = color;
+        this.backgroundType = backgroundType;
     }
 
     public int getStart() {
@@ -51,5 +54,9 @@ class IndexRangeColor {
 
     public Color getColor() {
         return color;
+    }
+
+    public TextDecoration.BackgroundType getBackgroundType() {
+        return backgroundType;
     }
 }

@@ -190,6 +190,23 @@ public class FullFeaturedDemo extends Application {
             }
         });
 
+        ComboBox<TextDecoration.BackgroundType> backgroundTypeComboBox = new ComboBox<>();
+        backgroundTypeComboBox.getItems().addAll(TextDecoration.BackgroundType.values());
+        backgroundTypeComboBox.setValue(TextDecoration.BackgroundType.SOLID);
+        backgroundTypeComboBox.setPrefWidth(100);
+        backgroundTypeComboBox.setConverter(new StringConverter<TextDecoration.BackgroundType>() {
+            @Override
+            public String toString(TextDecoration.BackgroundType object) {
+                return object.name();
+            }
+
+            @Override
+            public TextDecoration.BackgroundType fromString(String string) {
+                return TextDecoration.BackgroundType.valueOf(string);
+            }
+        });
+        new TextDecorateAction<>(editor, backgroundTypeComboBox.valueProperty(), TextDecoration::getBackgroundType, (builder, a) -> builder.backgroundType(a).build());
+
         ComboBox<Presets> presets = new ComboBox<>();
         presets.getItems().setAll(Presets.values());
         presets.setValue(Presets.DEFAULT);
@@ -289,6 +306,7 @@ public class FullFeaturedDemo extends Application {
                 createToggleButton(LineAwesomeSolid.UNDERLINE, property -> new TextDecorateAction<>(editor, property, TextDecoration::isUnderline, (builder, a) -> builder.underline(a).build())),
                 textForeground,
                 textBackground,
+                backgroundTypeComboBox,
                 new Separator(Orientation.VERTICAL),
                 editableProp);
 
