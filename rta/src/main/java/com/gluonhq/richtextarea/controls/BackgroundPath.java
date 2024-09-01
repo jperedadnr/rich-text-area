@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2024, Gluon
+ * Copyright (c) 2024, Gluon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,50 +29,11 @@ package com.gluonhq.richtextarea.controls;
 
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.PathElement;
-import javafx.scene.shape.Shape;
 
-import java.util.Objects;
+public interface BackgroundPath {
 
-public class BackgroundSolidPath extends Path implements BackgroundPath {
+    BackgroundPath mergeWith(Path path);
 
-    private final Paint color;
+    Paint getKey();
 
-    public BackgroundSolidPath(PathElement[] elements, Paint color) {
-        super(elements);
-        this.color = color;
-        setFill(color);
-        setStrokeWidth(0);
-        setStroke(null);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BackgroundSolidPath that = (BackgroundSolidPath) o;
-        return Objects.equals(getLayoutBounds(), that.getLayoutBounds()) && Objects.equals(getFill(), that.getFill());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getLayoutBounds(), getFill());
-    }
-
-    @Override
-    public BackgroundPath mergeWith(Path other) {
-        if (other instanceof BackgroundSolidPath) {
-            Path union = (Path) Shape.union(this, other);
-            union.setFill(this.getFill());
-            union.setStrokeWidth(0);
-            union.setStroke(null);
-            return new BackgroundSolidPath(union.getElements().toArray(new PathElement[0]), color);
-        }
-        return this;
-    }
-
-    @Override
-    public Paint getKey() {
-        return getFill();
-    }
 }

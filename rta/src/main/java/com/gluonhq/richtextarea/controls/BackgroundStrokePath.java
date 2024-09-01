@@ -34,45 +34,45 @@ import javafx.scene.shape.Shape;
 
 import java.util.Objects;
 
-public class BackgroundSolidPath extends Path implements BackgroundPath {
+public class BackgroundStrokePath extends Path implements BackgroundPath {
 
     private final Paint color;
 
-    public BackgroundSolidPath(PathElement[] elements, Paint color) {
+    public BackgroundStrokePath(PathElement[] elements, Paint color) {
         super(elements);
         this.color = color;
-        setFill(color);
-        setStrokeWidth(0);
-        setStroke(null);
+        setFill(null);
+        setStrokeWidth(1);
+        setStroke(color);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BackgroundSolidPath that = (BackgroundSolidPath) o;
-        return Objects.equals(getLayoutBounds(), that.getLayoutBounds()) && Objects.equals(getFill(), that.getFill());
+        BackgroundStrokePath that = (BackgroundStrokePath) o;
+        return Objects.equals(getLayoutBounds(), that.getLayoutBounds()) && Objects.equals(getStroke(), that.getStroke());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLayoutBounds(), getFill());
+        return Objects.hash(getLayoutBounds(), getStroke());
     }
 
     @Override
     public BackgroundPath mergeWith(Path other) {
-        if (other instanceof BackgroundSolidPath) {
+        if (other instanceof BackgroundStrokePath) {
             Path union = (Path) Shape.union(this, other);
-            union.setFill(this.getFill());
-            union.setStrokeWidth(0);
-            union.setStroke(null);
-            return new BackgroundSolidPath(union.getElements().toArray(new PathElement[0]), color);
+            union.setFill(null);
+            union.setStrokeWidth(1);
+            union.setStroke(this.getStroke());
+            return new BackgroundStrokePath(union.getElements().toArray(new PathElement[0]), color);
         }
         return this;
     }
 
     @Override
     public Paint getKey() {
-        return getFill();
+        return getStroke();
     }
 }
