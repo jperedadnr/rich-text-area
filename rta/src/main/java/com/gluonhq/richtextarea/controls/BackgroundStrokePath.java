@@ -27,6 +27,7 @@
  */
 package com.gluonhq.richtextarea.controls;
 
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
@@ -63,7 +64,7 @@ public class BackgroundStrokePath extends Path implements BackgroundPath {
     public BackgroundPath mergeWith(Path other) {
         if (other instanceof BackgroundStrokePath) {
             Path union = (Path) Shape.union(this, other);
-            union.setFill(null);
+            union.setFill(Color.BLACK);
             union.setStrokeWidth(1);
             union.setStroke(this.getStroke());
             return new BackgroundStrokePath(union.getElements().toArray(new PathElement[0]), color);

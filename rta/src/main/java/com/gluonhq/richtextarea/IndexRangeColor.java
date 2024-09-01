@@ -30,6 +30,8 @@ package com.gluonhq.richtextarea;
 import com.gluonhq.richtextarea.model.TextDecoration;
 import javafx.scene.paint.Color;
 
+import java.util.List;
+
 class IndexRangeColor {
 
     private final int start;
@@ -58,5 +60,17 @@ class IndexRangeColor {
 
     public TextDecoration.BackgroundType getBackgroundType() {
         return backgroundType;
+    }
+
+    public List<IndexRangeColor> mergeWith(IndexRangeColor other) {
+        if (end == other.start && color == other.color && backgroundType == other.backgroundType) {
+            return List.of(new IndexRangeColor(start, other.end, color, backgroundType));
+        }
+        return List.of(this, other);
+    }
+
+    @Override
+    public String toString() {
+        return "IndexRangeColor{[" + start + ", " + end + "], c=" + color + ", t=" + backgroundType + "}";
     }
 }

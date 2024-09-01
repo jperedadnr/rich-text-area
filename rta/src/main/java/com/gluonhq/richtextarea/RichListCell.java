@@ -202,8 +202,14 @@ class RichListCell extends ListCell<Paragraph> {
                         String background = textDecoration.getBackground();
                         Color backgroundColor = COLOR_MAP.computeIfAbsent(background, s -> parseColorOrDefault(background, Color.TRANSPARENT));
                         if (!Color.TRANSPARENT.equals(backgroundColor)) {
-                            backgroundIndexRanges.add(new IndexRangeColor(
-                                    length.get(), length.get() + unit.length(), backgroundColor, textDecoration.getBackgroundType()));
+                            IndexRangeColor newRange = new IndexRangeColor(
+                                    length.get(), length.get() + unit.length(), backgroundColor, textDecoration.getBackgroundType());
+                            if (!backgroundIndexRanges.isEmpty()) {
+                                IndexRangeColor last = backgroundIndexRanges.remove(backgroundIndexRanges.size() - 1);
+                                backgroundIndexRanges.addAll(last.mergeWith(newRange));
+                            } else {
+                                backgroundIndexRanges.add(newRange);
+                            }
                         }
                     }
                     length.addAndGet(unit.length());
